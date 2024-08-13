@@ -53,12 +53,16 @@ st.title("Frontend")
 
 request_id = ""
 gcs_uri = ""
+submit_button = False
 with st.sidebar:
-    request_id = st.text_input(label="Request ID", key="request_id")
-    gcs_uri = st.text_input(label="GCS URI", key="gcs_uri")
+    with st.form(key="request"):
+        request_id = st.text_input(label="Request ID", key="request_id")
+        gcs_uri = st.text_input(label="GCS URI", key="gcs_uri")
+
+        submit_button = st.form_submit_button(label="Submit")
 
 # check whether request_id exists
-if request_id and gcs_uri:
+if submit_button:
     try:
         item = get_item(str(request_id))
     except Exception:  # request_id does not exist
