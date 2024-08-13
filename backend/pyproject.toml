@@ -15,6 +15,7 @@ pydantic = "^2.8.2"
 python-dotenv = "^1.0.1"
 sqlmodel = "^0.0.21"
 uvicorn = "^0.30.5"
+requests = "^2.32.3"
 
 [tool.poetry.group.tests.dependencies]
 mypy = "^1.11.1"

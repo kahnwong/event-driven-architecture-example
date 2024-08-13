@@ -1,5 +1,7 @@
+import json
 import os
 
+import requests  # type: ignore
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi import HTTPException
@@ -63,5 +65,12 @@ async def submit(
     session.commit()
     session.refresh(item)
 
-    response = SubmitResponseItem(request_id=request.request_id, success=True)
-    return response
+    # submit task
+    r = requests.post(
+        url=os.getenv("WORKER_API_ENDPOINT"),
+        headers={"X-API-Key": os.getenv("WORKER_API_KEY")},
+        data=json.dumps(request.model_dump()),
+    )
+    assert r.status_code == 200
+
+    return SubmitResponseItem(request_id=request.request_id, success=True)
