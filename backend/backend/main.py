@@ -121,3 +121,17 @@ async def status_polling(
     return StatusResponseItem(
         request_id=request.request_id, progress=item.progress  # type: ignore
     )
+
+
+@app.get("/item", response_model=Foo)
+async def get_item(
+    *,
+    request_id: str,
+    session: Session = Depends(get_session),
+    api_key: str = Security(get_api_key),
+) -> StatusResponseItem:
+    logger.info(f"/item - request_id: {request_id}")
+
+    # query
+    query = select(Foo).where(Foo.request_id == request_id)
+    return session.exec(query).first()  # type: ignore

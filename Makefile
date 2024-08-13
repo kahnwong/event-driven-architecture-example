@@ -6,5 +6,5 @@ start-backend:
 start-worker:
 	cd worker && poetry run uvicorn worker.main:app --port 8081 --reload
 
-# start:
-# 	streamlit run article_summarizer/frontend.py --server.port 8501
+start-frontend:
+	cd frontend && poetry run streamlit run frontend/app.py --server.port 8501
