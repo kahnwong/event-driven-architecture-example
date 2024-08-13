@@ -6,10 +6,14 @@ from fastapi import HTTPException
 from fastapi import Security
 from fastapi import status
 from fastapi.security import APIKeyHeader
+from sqlmodel import Session
 
-from backend.model.submit import SubmitRequestItem
-from backend.model.submit import SubmitResponseItem
+from backend.models import Foo
+from backend.models import SubmitRequestItem
+from backend.models import SubmitResponseItem
+from backend.utils.db import create_postgres_engine
 from backend.utils.log import init_logger
+
 
 logger = init_logger(__name__)
 load_dotenv()
@@ -49,5 +53,14 @@ async def root():
 async def submit(
     request: SubmitRequestItem, api_key: str = Security(get_api_key)
 ) -> SubmitResponseItem:
+    logger.info(f"request_id: {request.request_id}")
+
+    session = Session(create_postgres_engine())
+
+    item = Foo(request_id=request.request_id, message=request.message)
+    session.add(item)
+    session.commit()
+    session.refresh(item)
+
     response = SubmitResponseItem(request_id=request.request_id, success=True)
     return response

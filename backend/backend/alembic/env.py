@@ -1,4 +1,3 @@
-import os
 from logging.config import fileConfig
 
 from alembic import context
@@ -19,16 +18,8 @@ fileConfig(config.config_file_name)  # type: ignore
 # target_metadata = mymodel.Base.metadata
 # target_metadata = None
 
-from backend.model.submit import SQLModel  # noqa
-from dotenv import load_dotenv
-
-load_dotenv()
-
-POSTGRES_HOSTNAME = os.getenv("POSTGRES_HOSTNAME")
-POSTGRES_USERNAME = os.getenv("POSTGRES_USERNAME")
-POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
-POSTGRES_DBNAME = os.getenv("POSTGRES_DBNAME")
-POSTGRES_PORT = os.getenv("POSTGRES_PORT")
+from backend.models import SQLModel  # noqa
+from backend.utils.db import get_connection_string
 
 target_metadata = SQLModel.metadata
 
@@ -39,7 +30,7 @@ target_metadata = SQLModel.metadata
 
 
 def get_url():
-    return f"postgresql+psycopg://{POSTGRES_USERNAME}:{POSTGRES_PASSWORD}@{POSTGRES_HOSTNAME}:{POSTGRES_PORT}/{POSTGRES_DBNAME}"
+    return get_connection_string()
 
 
 def run_migrations_offline():

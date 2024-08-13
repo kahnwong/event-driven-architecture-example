@@ -18,5 +18,5 @@ class SubmitResponseItem(BaseModel):
 class Foo(SQLModel, table=True):
     request_id: str = Field(primary_key=True, unique=True, index=True)
     message: str
-    progress: int  # from 0-100
-    is_done: bool
+    progress: int = 0  # from 0-100
+    is_done: bool = False
