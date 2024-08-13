@@ -71,12 +71,12 @@ repos:
         args: ["-C", "./backend"]
       - id: poetry-export
         args: ["-C", "./backend", "--without-hashes", "-f", "requirements.txt", "-o", "./backend/requirements.txt"]
-#  - repo: local
-#    hooks:
-#     - id: mypy
-#       name: mypy
-#       entry: "poetry run mypy $PROJECT"
-#       language: system
-#       types: [python]
-#       pass_filenames: false
-#       require_serial: true
+  - repo: local
+    hooks:
+      - id: mypy-backend
+        name: mypy
+        entry: 'bash -c "cd backend && poetry run mypy backend"'
+        language: system
+        types: [python]
+        pass_filenames: false
+        require_serial: true
