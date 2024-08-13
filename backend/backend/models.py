@@ -14,6 +14,15 @@ class SubmitResponseItem(BaseModel):
     success: bool
 
 
+class StatusRequestItem(BaseModel):
+    request_id: str
+
+
+class StatusResponseItem(BaseModel):
+    request_id: str
+    progress: int
+
+
 # database
 class Foo(SQLModel, table=True):
     request_id: str = Field(primary_key=True, unique=True, index=True)

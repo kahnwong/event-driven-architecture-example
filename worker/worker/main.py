@@ -3,6 +3,7 @@ from time import sleep
 
 from dotenv import load_dotenv
 from fastapi import BackgroundTasks
+from fastapi import Depends
 from fastapi import FastAPI
 from fastapi import HTTPException
 from fastapi import Security
@@ -14,7 +15,7 @@ from sqlmodel import Session
 from worker.models import Foo
 from worker.models import RequestItem
 from worker.models import ResponseItem
-from worker.utils.db import create_postgres_engine
+from worker.utils.db import get_session
 from worker.utils.log import init_logger
 
 logger = init_logger(__name__)
@@ -53,27 +54,28 @@ async def root():
 
 @app.post("/", response_model=ResponseItem)
 async def main(
+    *,
     request: RequestItem,
+    session: Session = Depends(get_session),
     background_tasks: BackgroundTasks,
     api_key: str = Security(get_api_key),
 ) -> ResponseItem:
-    logger.info(f"request_id: {request.request_id}")
+    logger.info(f"/worker - request_id: {request.request_id}")
 
-    background_tasks.add_task(func=task, request_id=request.request_id)
+    background_tasks.add_task(func=task, request_id=request.request_id, session=session)
 
     return ResponseItem(success=True)
 
 
-def task(request_id: str):
-    session = Session(create_postgres_engine())
+def task(request_id: str, session: Session):
     query = select(Foo).where(Foo.request_id == request_id)
     item = session.exec(query).first()
 
     # update progress
-    for i in range(4):
+    for i in range(100):
         sleep(1)
 
-        item.progress += 25  # type: ignore
+        item.progress += 1  # type: ignore
         logger.info(item)
 
         session.add(item)

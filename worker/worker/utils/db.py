@@ -2,6 +2,7 @@ import os
 
 from dotenv import load_dotenv
 from sqlmodel import create_engine
+from sqlmodel import Session
 
 from worker.utils.log import init_logger
 
@@ -26,3 +27,8 @@ def create_postgres_engine():
         get_connection_string(),
         # echo=True,
     )
+
+
+def get_session():
+    with Session(create_postgres_engine()) as session:
+        yield session

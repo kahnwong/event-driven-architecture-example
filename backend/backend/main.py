@@ -3,6 +3,7 @@ import os
 
 import requests  # type: ignore
 from dotenv import load_dotenv
+from fastapi import Depends
 from fastapi import FastAPI
 from fastapi import HTTPException
 from fastapi import Security
@@ -13,7 +14,7 @@ from sqlmodel import Session
 from backend.models import Foo
 from backend.models import SubmitRequestItem
 from backend.models import SubmitResponseItem
-from backend.utils.db import create_postgres_engine
+from backend.utils.db import get_session
 from backend.utils.log import init_logger
 
 
@@ -53,12 +54,12 @@ async def root():
 
 @app.post("/submit", response_model=SubmitResponseItem)
 async def submit(
+    *,
     request: SubmitRequestItem,
+    session: Session = Depends(get_session),
     api_key: str = Security(get_api_key),
 ) -> SubmitResponseItem:
-    logger.info(f"request_id: {request.request_id}")
-
-    session = Session(create_postgres_engine())
+    logger.info(f"/submit - request_id: {request.request_id}")
 
     item = Foo(request_id=request.request_id, message=request.message)
     session.add(item)
