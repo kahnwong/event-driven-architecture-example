@@ -1,4 +1,5 @@
 import os
+from time import sleep
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
@@ -6,8 +7,12 @@ from fastapi import HTTPException
 from fastapi import Security
 from fastapi import status
 from fastapi.security import APIKeyHeader
+from sqlmodel import select
+from sqlmodel import Session
 
-from worker.model.request import RequestItem
+from worker.models import Foo
+from worker.models import RequestItem
+from worker.utils.db import create_postgres_engine
 from worker.utils.log import init_logger
 
 logger = init_logger(__name__)
@@ -46,4 +51,28 @@ async def root():
 
 @app.post("/")
 async def main(request: RequestItem, api_key: str = Security(get_api_key)):
-    print(request)
+    logger.info(f"request_id: {request.request_id}")
+
+    session = Session(create_postgres_engine())
+    query = select(Foo).where(Foo.request_id == request.request_id)
+    item = session.exec(query).first()
+
+    # update progress
+    for i in range(4):
+        sleep(1)
+
+        item.progress += 25  # type: ignore
+        logger.info(item)
+
+        session.add(item)
+        session.commit()
+        session.refresh(item)
+
+    # mark as done
+    item = session.exec(query).first()
+    if item.progress == 100:  # type: ignore
+        item.is_done = True  # type: ignore
+
+        session.add(item)
+        session.commit()
+        session.refresh(item)
