@@ -9,9 +9,12 @@ from fastapi import HTTPException
 from fastapi import Security
 from fastapi import status
 from fastapi.security import APIKeyHeader
+from sqlmodel import select
 from sqlmodel import Session
 
 from backend.models import Foo
+from backend.models import StatusRequestItem
+from backend.models import StatusResponseItem
 from backend.models import SubmitRequestItem
 from backend.models import SubmitResponseItem
 from backend.utils.db import get_session
@@ -75,3 +78,20 @@ async def submit(
     assert r.status_code == 200
 
     return SubmitResponseItem(request_id=request.request_id, success=True)
+
+
+@app.post("/status", response_model=StatusResponseItem)
+async def status_polling(
+    *,
+    request: StatusRequestItem,
+    session: Session = Depends(get_session),
+    api_key: str = Security(get_api_key),
+) -> StatusResponseItem:
+    logger.info(f"/status - request_id: {request.request_id}")
+
+    query = select(Foo).where(Foo.request_id == request.request_id)
+    item = session.exec(query).first()
+
+    return StatusResponseItem(
+        request_id=request.request_id, progress=item.progress, is_done=item.is_done  # type: ignore
+    )

@@ -21,6 +21,7 @@ class StatusRequestItem(BaseModel):
 class StatusResponseItem(BaseModel):
     request_id: str
     progress: int
+    is_done: bool
 
 
 # database

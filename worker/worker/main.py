@@ -72,10 +72,10 @@ def task(request_id: str, session: Session):
     item = session.exec(query).first()
 
     # update progress
-    for i in range(100):
+    for i in range(20):
         sleep(1)
 
-        item.progress += 1  # type: ignore
+        item.progress += 5  # type: ignore
         logger.info(item)
 
         session.add(item)
