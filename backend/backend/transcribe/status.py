@@ -1,8 +1,7 @@
-from googleapiclient import discovery  # type: ignore
+from backend.transcribe import speech_service
 
 
-def transcribe_status(operation_name: str) -> int:
-    speech_service = discovery.build("speech", "v1")
+def transcribe_status(operation_name: str, speech_service=speech_service) -> int:
     operation = speech_service.operations().get(name=operation_name).execute()
 
     progress = 0

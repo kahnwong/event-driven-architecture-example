@@ -15,6 +15,7 @@ from backend.models import StatusRequestItem
 from backend.models import StatusResponseItem
 from backend.models import SubmitRequestItem
 from backend.models import SubmitResponseItem
+from backend.transcribe.get import transcribe_to_text
 from backend.transcribe.request import transcribe_request
 from backend.transcribe.status import transcribe_status
 from backend.utils.db import get_session
@@ -105,6 +106,12 @@ async def status_polling(
     item = session.exec(query).first()
 
     item.progress = transcribe_status(operation_name=item.operation_name)  # type: ignore
+
+    # extract response if done
+    if (item.progress == 100) & (item.transcript == ""):  # type: ignore
+        item.transcript = transcribe_to_text(  # type: ignore
+            operation_name=item.operation_name, gcs_uri=item.gcs_uri  # type: ignore
+        )
 
     # update db
     session.add(item)

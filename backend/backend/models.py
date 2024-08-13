@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel
 from sqlmodel import Field
 from sqlmodel import SQLModel
@@ -30,4 +32,4 @@ class Foo(SQLModel, table=True):
     operation_name: str
     progress: int = 0  # from 0-100
     is_done: bool = False
-    transcription: str = ""
+    transcript: Optional[str] = ""
