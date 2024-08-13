@@ -31,5 +31,4 @@ class Foo(SQLModel, table=True):
     gcs_uri: str
     operation_name: str
     progress: int = 0  # from 0-100
-    is_done: bool = False
     transcript: Optional[str] = ""
