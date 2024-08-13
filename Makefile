@@ -1,5 +1,5 @@
 start-db:
-	docker compose -f docker-compose-postgres.yaml up -d
+	docker compose -f compose-postgres.yaml up -d
 
 start-backend:
 	cd backend && poetry run uvicorn backend.main:app --port 8080 --reload
