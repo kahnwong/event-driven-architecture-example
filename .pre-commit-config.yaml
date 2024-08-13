@@ -66,12 +66,11 @@ repos:
     rev: 1.8.3
     hooks:
       - id: poetry-check
+        args: ["-C", "./backend"]
       - id: poetry-lock
-  - repo: https://github.com/python-poetry/poetry-plugin-export
-    rev: 1.6.0
-    hooks:
+        args: ["-C", "./backend"]
       - id: poetry-export
-        args: ["--without-hashes", "-f", "requirements.txt", "-o", "requirements.txt"]
+        args: ["-C", "./backend", "--without-hashes", "-f", "requirements.txt", "-o", "./backend/requirements.txt"]
 #  - repo: local
 #    hooks:
 #     - id: mypy
