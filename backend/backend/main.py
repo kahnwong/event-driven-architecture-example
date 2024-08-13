@@ -16,6 +16,7 @@ from backend.models import StatusResponseItem
 from backend.models import SubmitRequestItem
 from backend.models import SubmitResponseItem
 from backend.transcribe.request import transcribe_request
+from backend.transcribe.status import transcribe_status
 from backend.utils.db import get_session
 from backend.utils.log import init_logger
 
@@ -99,9 +100,17 @@ async def status_polling(
 ) -> StatusResponseItem:
     logger.info(f"/status - request_id: {request.request_id}")
 
+    # query
     query = select(Foo).where(Foo.request_id == request.request_id)
     item = session.exec(query).first()
 
+    item.progress = transcribe_status(operation_name=item.operation_name)  # type: ignore
+
+    # update db
+    session.add(item)
+    session.commit()
+    session.refresh(item)
+
     return StatusResponseItem(
-        request_id=request.request_id, progress=item.progress, is_done=item.is_done  # type: ignore
+        request_id=request.request_id, progress=item.progress  # type: ignore
     )
