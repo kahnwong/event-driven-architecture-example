@@ -66,16 +66,26 @@ repos:
     rev: 1.8.3
     hooks:
       - id: poetry-check
-        args: ["-C", "./backend"]
+        args: ["-C", "./backend", "-C", "./worker"]
       - id: poetry-lock
-        args: ["-C", "./backend"]
+        args: ["-C", "./backend", "-C", "./worker"]
       - id: poetry-export
-        args: ["-C", "./backend", "--without-hashes", "-f", "requirements.txt", "-o", "./backend/requirements.txt"]
+        args: ["-C", "./backend", "--without-hashes", "-f", "requirements.txt", "-o", "./backend/requirements.txt", "-C", "./worker", "--without-hashes",
+          "-f", "requirements.txt", "-o", "./worker/requirements.txt"]
   - repo: local
     hooks:
       - id: mypy-backend
-        name: mypy
+        name: mypy-backend
         entry: 'bash -c "cd backend && poetry run mypy backend"'
+        language: system
+        types: [python]
+        pass_filenames: false
+        require_serial: true
+  - repo: local
+    hooks:
+      - id: mypy-worker
+        name: mypy-worker
+        entry: 'bash -c "cd worker && poetry run mypy worker"'
         language: system
         types: [python]
         pass_filenames: false
