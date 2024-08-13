@@ -1,7 +1,5 @@
-import json
 import os
 
-import requests  # type: ignore
 from dotenv import load_dotenv
 from fastapi import Depends
 from fastapi import FastAPI
@@ -17,6 +15,7 @@ from backend.models import StatusRequestItem
 from backend.models import StatusResponseItem
 from backend.models import SubmitRequestItem
 from backend.models import SubmitResponseItem
+from backend.transcribe.request import transcribe_request
 from backend.utils.db import get_session
 from backend.utils.log import init_logger
 
@@ -64,18 +63,29 @@ async def submit(
 ) -> SubmitResponseItem:
     logger.info(f"/submit - request_id: {request.request_id}")
 
-    item = Foo(request_id=request.request_id, message=request.message)
+    # submit task
+    operation_name = transcribe_request(
+        request_id=request.request_id, gcs_uri=request.gcs_uri
+    )
+
+    # write data to db
+    item = Foo(
+        request_id=request.request_id,
+        gcs_uri=request.gcs_uri,
+        operation_name=operation_name,
+    )
+
     session.add(item)
     session.commit()
     session.refresh(item)
 
-    # submit task
-    r = requests.post(
-        url=os.getenv("WORKER_API_ENDPOINT"),
-        headers={"X-API-Key": os.getenv("WORKER_API_KEY")},
-        data=json.dumps(request.model_dump()),
-    )
-    assert r.status_code == 200
+    # # submit task
+    # r = requests.post(
+    #     url=os.getenv("WORKER_API_ENDPOINT"),
+    #     headers={"X-API-Key": os.getenv("WORKER_API_KEY")},
+    #     data=json.dumps(request.model_dump()),
+    # )
+    # assert r.status_code == 200
 
     return SubmitResponseItem(request_id=request.request_id, success=True)
 
