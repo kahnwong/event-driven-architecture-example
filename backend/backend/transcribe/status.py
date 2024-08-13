@@ -18,4 +18,10 @@ speech_client = SpeechClient()
 def transcribe_status(operation_name: str) -> int:
     operation = speech_service.operations().get(name=operation_name).execute()
 
-    return operation["metadata"]["progressPercent"]
+    progress = 0
+    try:
+        progress = operation["metadata"]["progressPercent"]
+    except Exception:
+        pass
+
+    return progress
