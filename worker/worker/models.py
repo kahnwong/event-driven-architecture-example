@@ -9,6 +9,10 @@ class RequestItem(BaseModel):
     message: str
 
 
+class ResponseItem(BaseModel):
+    success: bool
+
+
 # database
 class Foo(SQLModel, table=True):
     request_id: str = Field(primary_key=True, unique=True, index=True)

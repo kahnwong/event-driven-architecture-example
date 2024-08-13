@@ -51,7 +51,8 @@ async def root():
 
 @app.post("/submit", response_model=SubmitResponseItem)
 async def submit(
-    request: SubmitRequestItem, api_key: str = Security(get_api_key)
+    request: SubmitRequestItem,
+    api_key: str = Security(get_api_key),
 ) -> SubmitResponseItem:
     logger.info(f"request_id: {request.request_id}")
 

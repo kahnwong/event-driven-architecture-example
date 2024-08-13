@@ -2,6 +2,7 @@ import os
 from time import sleep
 
 from dotenv import load_dotenv
+from fastapi import BackgroundTasks
 from fastapi import FastAPI
 from fastapi import HTTPException
 from fastapi import Security
@@ -12,6 +13,7 @@ from sqlmodel import Session
 
 from worker.models import Foo
 from worker.models import RequestItem
+from worker.models import ResponseItem
 from worker.utils.db import create_postgres_engine
 from worker.utils.log import init_logger
 
@@ -49,12 +51,22 @@ async def root():
     return {"version": "0.1.0"}
 
 
-@app.post("/")
-async def main(request: RequestItem, api_key: str = Security(get_api_key)):
+@app.post("/", response_model=ResponseItem)
+async def main(
+    request: RequestItem,
+    background_tasks: BackgroundTasks,
+    api_key: str = Security(get_api_key),
+) -> ResponseItem:
     logger.info(f"request_id: {request.request_id}")
 
+    background_tasks.add_task(func=task, request_id=request.request_id)
+
+    return ResponseItem(success=True)
+
+
+def task(request_id: str):
     session = Session(create_postgres_engine())
-    query = select(Foo).where(Foo.request_id == request.request_id)
+    query = select(Foo).where(Foo.request_id == request_id)
     item = session.exec(query).first()
 
     # update progress
